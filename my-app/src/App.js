@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import logo from './images/yuba_ph.JPG';
+
 class App extends Component {
   state = {
     person: {
@@ -10,32 +11,39 @@ class App extends Component {
       profession: "Web Developer"
     },
     shows: false,
-    mountedAt: null,
-    intervalId: null
+    intervalId: null,
+    timer: 0
   }
 
   toggleProfile = () => {
+    if (!this.state.shows) {
+      this.startTimer();
+    } else {
+      clearInterval(this.state.intervalId);
+      this.setState({ timer: 0 });
+    }
     this.setState({ shows: !this.state.shows });
   }
 
-  componentDidMount() {
-    this.setState({ mountedAt: new Date() });
+  startTimer = () => {
     const intervalId = setInterval(() => {
-      this.setState({ mountedAt: new Date() });
+      this.setState((prevState) => ({ timer: prevState.timer + 1 }));
     }, 1000);
     this.setState({ intervalId });
   }
 
   componentWillUnmount() {
-    clearInterval(this.state.intervalId);
+    if (this.state.shows) {
+      clearInterval(this.state.intervalId);
+    }
   }
 
   render() {
-    const { person, shows, mountedAt } = this.state;
+    const { person, shows, timer } = this.state;
     return (
       <div className="container">
         <button className="toggle-button" onClick={this.toggleProfile}>
-          {shows ? "Hide Profile" : "Show Profile"}
+          {shows ? "Masquer Profil" : "Montre Profile"}
         </button>
         {shows &&
           <div className="profile">
@@ -43,9 +51,9 @@ class App extends Component {
             <h1 className="profile-name">{person.fullName}</h1>
             <h2 className="profile-profession">{person.profession}</h2>
             <p className="profile-bio">{person.bio}</p>
+            <p className="mounted-time">Timer: {timer}s</p>
           </div>
         }
-        <p className="mounted-time">Component mounted at {mountedAt && mountedAt.toLocaleTimeString()}</p>
       </div>
     );
   }
